@@ -133,11 +133,31 @@ def num_read_interval(file_path: str):
         for j in read_start:
             rd_start = read_start[j]
             rd_end = read_end[j]
-            if rd_start <= int_end and rd_end >= int_start:
+
+            if rd_start >= int_start and rd_end <= int_end:
                 counter += 1
+
+            elif rd_start > int_start and rd_start < int_end:
+                counter += 1
+
+            elif rd_end > int_start and rd_end < int_end:
+                counter += 1
+
         num_read_interval[i] = counter
 
     return num_read_interval
+
+
+reads_per_interval = num_read_interval(file_path)
+
+"""
+Si d < a  et b < f alors
+    [ab] est dans [df]
+Sinon si d < a < f alors
+    a est dans [df] donc ]ab] est dans [df]
+Sinon si d < b < f alors
+    b est dans [df] donc [ab[ est dans [df]
+"""
 
 
 def save_intervals_to_file(interval_counts: dict, output_file: str):
@@ -154,28 +174,42 @@ def save_intervals_to_file(interval_counts: dict, output_file: str):
     print(f"Interval counts have been saved to {output_file}")
 
 
-import matplotlib.pyplot as plt
-
+#save_intervals_to_file(num_read_interval(file_path),output_file)
 
 #the plot is sus, to be rechecked
-def plot_histogram(reads_per_interval):
+import matplotlib.pyplot as plt
+
+def plot_percentage_reads_line(reads_per_interval):
     """
-    Plots a histogram of the number of reads per interval.
+    Plots a line graph with interval indices on the X-axis and the percentage of reads in each interval on the Y-axis.
 
     Args:
         reads_per_interval (dict): A dictionary where keys are interval indices and values are the count of reads.
     """
-    # Extract the values (read counts) from the dictionary
-    read_counts = list(reads_per_interval.values())
+    # Calculate the total number of reads
+    total_reads = sum(reads_per_interval.values())
 
-    # Plot the histogram
-    plt.figure(figsize=(10, 6))
-    plt.hist(read_counts, bins=50, edgecolor='black', alpha=0.7)
+    # Calculate percentage of reads per interval
+    interval_indices = list(reads_per_interval.keys())
+    percentages = [(count / total_reads) * 100 for count in reads_per_interval.values()]
+
+    # Plot the line graph
+    plt.figure(figsize=(30, 6))
+    plt.plot(interval_indices, percentages, marker='o', color='blue', linestyle='-', linewidth=2, markersize=2)
 
     # Adding labels and title
-    plt.xlabel('Number of Reads per Interval')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of Reads per Interval')
+    plt.xlabel('Interval Index', fontsize=12)
+    plt.ylabel('Percentage of Reads (%)', fontsize=12)
+    plt.title('Percentage of Reads Per Interval (Line Graph)', fontsize=14)
+    # Set the Y-axis range
+    plt.ylim(0.06, 0.2)
+
+    # Adding grid for better readability
+    plt.grid(axis='both', linestyle='--', alpha=0.7)
 
     # Show the plot
+    plt.tight_layout()
     plt.show()
+
+
+plot_percentage_reads_line(reads_per_interval)
