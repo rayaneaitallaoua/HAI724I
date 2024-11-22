@@ -2,7 +2,7 @@ taille_interval = 100
 x = 4
 c = 0
 flag_list = []
-output_file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results.txt'
+output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results.txt'
 
 # Où est mon fichier?
 file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
@@ -51,17 +51,18 @@ def divise_chromosome(longueur_chrom: int, taille_interval: int):
     interv_index = 0
     interv_start = 1
 
-    while interv_start < longueur_chrom:
-        interv_index += 1
-        interv_end = int(interv_start + taille_interval + 1)
+    while interv_start <= longueur_chrom:
 
-        while interv_end >= longueur_chrom:
-            interv_end = int(interv_end) - 1
+        interv_end = int(interv_start + taille_interval - 1)
+
+        if interv_end >= longueur_chrom:
+            interv_end = longueur_chrom
 
         interv_start_dict[interv_index] = interv_start
         interv_end_dict[interv_index] = interv_end
 
         interv_start = interv_end + 1
+        interv_index += 1
 
     return interv_start_dict, interv_end_dict
 
@@ -93,16 +94,16 @@ def read_interval(file_path: str):
 
         # Write dictionaries to the output file
         #change into def read_interval(file_path: str, output_file:str):
-    #    with open(output_file, 'w') as out_file:
-    #        out_file.write("Read Start Positions:\n")
-    #        for read, start in dict_read_start.items():
-    #            out_file.write(f"{read}: {start}\n")
+        #with open(output_file, 'w') as out_file:
+        #    out_file.write("Read Start Positions:\n")
+        #    for read, start in dict_read_start.items():
+        #        out_file.write(f"{read}: {start}\n")
 
-    #        out_file.write("\nRead End Positions:\n")
-    #        for read, end in dict_read_end.items():
-    #            out_file.write(f"{read}: {end}\n")
+        #    out_file.write("\nRead End Positions:\n")
+        #    for read, end in dict_read_end.items():
+        #        out_file.write(f"{read}: {end}\n")
 
-    #    print(f"Dictionaries written to {output_file}")
+        #print(f"Dictionaries written to {output_file}")
 
     return dict_read_start, dict_read_end
 
@@ -139,18 +140,12 @@ def num_read_interval(file_path: str):
     return num_read_interval
 
 
-reads_per_interval = num_read_interval(file_path)
+def save_intervals_to_file(interval_counts: dict, output_file: str):
+    #    Saves the interval counts to a file.
 
-
-
-def save_intervals_to_file(interval_counts:dict, output_file:str):
-
-#    Saves the interval counts to a file.
-
-#    Args:
-#        interval_counts (dict): A dictionary where keys are interval indices and values are read counts.
-#        output_file (str): The path to the file where the data will be saved.
-
+    #    Args:
+    #        interval_counts (dict): A dictionary where keys are interval indices and values are read counts.
+    #        output_file (str): The path to the file where the data will be saved.
 
     with open(output_file, 'w') as file:
         file.write("Interval\tRead_Count\n")  # Header
@@ -158,9 +153,9 @@ def save_intervals_to_file(interval_counts:dict, output_file:str):
             file.write(f"{interval}\t{count}\n")
     print(f"Interval counts have been saved to {output_file}")
 
-save_intervals_to_file(reads_per_interval,output_file_path)
 
 import matplotlib.pyplot as plt
+
 
 #the plot is sus, to be rechecked
 def plot_histogram(reads_per_interval):
@@ -184,5 +179,3 @@ def plot_histogram(reads_per_interval):
 
     # Show the plot
     plt.show()
-
-plot_histogram(reads_per_interval)
