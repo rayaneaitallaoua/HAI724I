@@ -1,20 +1,19 @@
+import matplotlib.pyplot as plt
+
+#flag value
 x = 4
 
-output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results.txt'
+output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results_.txt'
 
 # Où est mon fichier?
 file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
 
-
-# 1 1 1 1 1 1 1 1
-# 1 2 4 8 16 32 64 128
 
 def reads_QMAP30_or_FLAGNOT4(file_path: str):
     # clean_reads is a dictionnary with read numbers as keys and values
     # are lists containing the flag, start and end value for each read
 
     clean_reads = {}
-    clean_reads_values = []
 
     # ouvrir le fichier en lecture 'r' sous le nom file
     with open(file_path, 'r') as file:
@@ -40,7 +39,7 @@ def reads_QMAP30_or_FLAGNOT4(file_path: str):
                 read_length = abs(int(columns[8]))
                 read_end = read_start + read_length
 
-                #stocker la valeur de QMAP
+                # stocker la valeur de QMAP
                 read_quality = int(columns[4])
 
                 # pour chaque read i, stocker dans la
@@ -76,7 +75,8 @@ def num_reads_per_flag(file_path:str):
             # extraire le nom + colonne
             name_value = columns[0]
             flag_value = columns[1]
-            #test si les flags contiennet PAS 1 sur le digit 4 donc read n'est pas 'read unmapped' en utilisant l'operation binaire &
+            #test si les flags contiennet PAS 1 sur le digit 4 donc read n'est pas 'read unmapped' 
+            #en utilisant l'operation binaire &
             if int(flag_value) & x == 0:
                 #rajoute chacune des valeurs dans la liste des flags
                 flag_list.append(flag_value)
@@ -197,10 +197,10 @@ def num_read_interval(file_path: str):
             if rd_start >= int_start and rd_end <= int_end:
                 counter += 1
 
-            elif rd_start > int_start and rd_start < int_end:
+            elif int_start < rd_start < int_end:
                 counter += 1
 
-            elif rd_end > int_start and rd_end < int_end:
+            elif int_start < rd_end < int_end:
                 counter += 1
 
         num_read_interval[i] = counter
@@ -208,7 +208,7 @@ def num_read_interval(file_path: str):
     return num_read_interval
 
 
-reads_per_interval = num_read_interval(file_path)
+#reads_per_interval = num_read_interval(file_path)
 
 """
 Si d < a  et b < f alors
@@ -234,9 +234,6 @@ def save_intervals_to_file(interval_counts: dict, output_file: str):
         for interval, count in sorted(interval_counts.items()):
             file.write(f"{interval}\t{count}\n")
     print(f"Interval counts have been saved to {output_file}")
-
-
-import matplotlib.pyplot as plt
 
 
 # the plot is sus, to be rechecked
@@ -275,10 +272,36 @@ def plot_percentage_reads_line(reads_per_interval):
 
 #plot_percentage_reads_line(reads_per_interval)
 
+def plot_read_counts_no_avg(reads_per_interval):
+    """
+    Plots a bar chart with interval indices on the X-axis and the count of reads on the Y-axis.
 
-import matplotlib.pyplot as plt
+    Args:
+        reads_per_interval (dict): A dictionary where keys are interval indices and values are the count of reads.
+    """
+    # Extract the keys (interval indices) and values (read counts)
+    interval_indices = list(reads_per_interval.keys())
+    read_counts = list(reads_per_interval.values())
 
-def plot_read_counts(reads_per_interval):
+    # Plot the bar chart
+    plt.figure(figsize=(12, 6))
+    plt.bar(interval_indices, read_counts, color='skyblue', edgecolor='black')
+
+    # Adding labels and title
+    plt.xlabel('Interval Index', fontsize=12)
+    plt.ylabel('Read Count', fontsize=12)
+    plt.title('Read Counts Per Interval', fontsize=14)
+
+    # Adjusting tick spacing and appearance
+    plt.xticks(interval_indices[::max(1, len(interval_indices) // 10)], rotation=45)  # Avoid overcrowding
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_read_counts_with_avg(reads_per_interval):
     """
     Plots a bar chart with interval indices on the X-axis and the count of reads on the Y-axis.
 
@@ -316,4 +339,91 @@ def plot_read_counts(reads_per_interval):
     plt.show()
 
 
-plot_read_counts(reads_per_interval)
+#plot_read_counts(reads_per_interval)
+
+
+def read_count_per_quality(file_path: str):
+    read_quality = {}
+    read_count_quality = {}
+    i = 0
+
+    # créer un dict read quality contenant la valeur de MAPQ pour chaque read
+    # ouvrir le fichier en lecture 'r' sous le nom file
+    with open(file_path, 'r') as file:
+        # pour chaque ligne dans mon fichier
+        for line in file:
+
+            # ignorer les headers
+            if line.startswith('@'):
+                continue
+            # Diviser les colonnes en utilisant \t
+            columns = line.split('\t')
+
+            # filter for flag mapped reads only
+            if int(columns[1]) & x == 0:
+                read_quality[i] = int(columns[4])
+                i += 1
+
+        #créer des interval de 10
+
+        interval_start = {}
+        interval_end = {}
+
+        # gener des chiffre de 0 à 100 avec pas de 10
+        for i in range(0, 100, 10):
+            interval_index = i // 10
+            interval_start[interval_index] = i
+            interval_end[interval_index] = i + 10
+
+        # compter le nombre de reads par interval de qualité
+        for i in interval_start:
+            int_start = interval_start[i]
+            int_end = interval_end[i]
+            counter = 0
+
+            for j in read_quality:
+
+                if int_start <= read_quality[j] < int_end:
+                    counter += 1
+
+            read_count_quality[i] = counter
+
+    return read_count_quality
+
+
+def plot_mapq_quality_intervals(read_count_quality):
+    """
+    Plots a bar chart showing the number of reads per MAPQ quality interval.
+    It includes a line connecting the tops of the bars for better visibility of changes.
+
+    Args:
+        read_count_quality (dict): Dictionary with interval indices as keys and read counts as values.
+    """
+    # Create a list of intervals (e.g., '[0-9]', '[10-19]', etc.)
+    intervals = [f"[{i * 10}-{(i + 1) * 10 - 1}]" for i in range(len(read_count_quality))]
+
+    # Get the read counts for each interval
+    read_counts = list(read_count_quality.values())
+
+    # Create the bar chart
+    plt.figure(figsize=(10, 6))
+    plt.bar(intervals, read_counts, color='blue', alpha=0.7, label="Reads per interval")
+
+    # Plot the line that connects the tops of the bars
+    plt.plot(intervals, read_counts, color='red', marker='o', label="Trend line", linestyle='-', linewidth=2)
+
+    # Adding labels and title
+    plt.xlabel("MAPQ Quality Interval", fontsize=12)
+    plt.ylabel("Number of Reads", fontsize=12)
+    plt.title("Number of Reads per MAPQ Quality Interval", fontsize=14)
+
+    # Rotate the x-axis labels for better readability
+    plt.xticks(rotation=45)
+
+    # Add a legend
+    plt.legend()
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
