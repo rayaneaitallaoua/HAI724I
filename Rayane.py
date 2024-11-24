@@ -1,6 +1,6 @@
 x = 4
 
-output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results_quality.txt'
+output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results.txt'
 
 # Où est mon fichier?
 file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
@@ -164,6 +164,7 @@ def read_interval(file_path: str):
 """
 
 
+#uses the clean reads
 def num_read_interval(file_path: str):
     num_read_interval = {}
 
@@ -207,7 +208,7 @@ def num_read_interval(file_path: str):
     return num_read_interval
 
 
-#reads_per_interval = num_read_interval(file_path)
+reads_per_interval = num_read_interval(file_path)
 
 """
 Si d < a  et b < f alors
@@ -271,4 +272,48 @@ def plot_percentage_reads_line(reads_per_interval):
     plt.tight_layout()
     plt.show()
 
+
 #plot_percentage_reads_line(reads_per_interval)
+
+
+import matplotlib.pyplot as plt
+
+def plot_read_counts(reads_per_interval):
+    """
+    Plots a bar chart with interval indices on the X-axis and the count of reads on the Y-axis.
+
+    Args:
+        reads_per_interval (dict): A dictionary where keys are interval indices and values are the count of reads.
+    """
+    # Extract the keys (interval indices) and values (read counts)
+    interval_indices = list(reads_per_interval.keys())
+    read_counts = list(reads_per_interval.values())
+
+    # Calculate the average number of reads per interval
+    average_reads = sum(read_counts) / len(read_counts)
+
+    # Plot the bar chart
+    plt.figure(figsize=(12, 6))
+    plt.bar(interval_indices, read_counts, color='skyblue', edgecolor='black')
+
+    # Line for average reads
+    plt.axhline(y=average_reads, color='red', linestyle='--', linewidth=2,
+                label=f'Average Reads Per Interval ({average_reads:.2f})')
+
+    # Adding labels and title
+    plt.xlabel('Interval Index', fontsize=12)
+    plt.ylabel('Read Count', fontsize=12)
+    plt.title('Read Counts Per Interval', fontsize=14)
+
+    plt.legend(fontsize=10, loc='upper right')
+
+    # Adjusting tick spacing and appearance
+    plt.xticks(interval_indices[::max(1, len(interval_indices) // 10)], rotation=45)  # Avoid overcrowding
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+
+plot_read_counts(reads_per_interval)
