@@ -29,12 +29,12 @@ def mapped_read_count(filepath: str):
 
     return compte_read
 
-
-print(f"le nombre de read mappé est: {mapped_read_count(file_path)}")
+# CORRECTION mapped reads / total (percentage)
+# print(f"le nombre de read mappé est: {mapped_read_count(file_path)}")
 
 
 # Question 2
-# filtre pour MAPQ < 30 AND Flag & 4 == 0
+# filtre pour MAPQ > 30 AND Flag & 4 == 0
 def reads_QMAP30_or_FLAGNOT4(file_path: str):
     # clean reads est un dictionnaire dont lequel le numéro du read est une clé
     # est les valeurs sont : flag, debut du read, fin du read et MAPQ. Tout en int.
@@ -54,7 +54,7 @@ def reads_QMAP30_or_FLAGNOT4(file_path: str):
             # Diviser les colonnes en utilisant \t
             columns = line.split('\t')
 
-            if (int(columns[1]) & x == 0) and int(columns[4]) < 30:
+            if (int(columns[1]) & x == 0) and int(columns[4]) > 30:
                 # extraire les flags de chaque read
                 flag_value = int(columns[1])
 
@@ -262,9 +262,9 @@ def plot_read_counts_per_quality(reads_per_interval):
     plt.show()
 
 
-# print(read_count_per_quality(file_path))
+print(read_count_per_quality(file_path))
 
-# plot_read_counts_per_quality_with_avg(read_count_per_quality(file_path))
+plot_read_counts_per_quality(read_count_per_quality(file_path))
 
 
 def save_dict_to_file(dictionnary: dict, output_file: str):
