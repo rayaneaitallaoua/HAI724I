@@ -8,6 +8,7 @@ output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results_.txt'
 # Où est mon fichier?
 file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
 
+def mapped_read_count(filepath:str):
 
 def reads_QMAP30_or_FLAGNOT4(file_path: str):
     # clean_reads is a dictionnary with read numbers as keys and values
@@ -28,7 +29,7 @@ def reads_QMAP30_or_FLAGNOT4(file_path: str):
             # Diviser les colonnes en utilisant \t
             columns = line.split('\t')
 
-            if (int(columns[1]) & x == 0) and int(columns[4]) > 30:
+            if (int(columns[1]) & x == 0) and int(columns[4]) < 30:
                 # extraire les flags de chaque read
                 flag_value = int(columns[1])
 
@@ -167,17 +168,6 @@ def read_interval(file_path: str):
 #uses the clean reads
 def num_read_interval(file_path: str):
     num_read_interval = {}
-
-    with open(file_path, 'r') as file:
-        # pour chaque ligne dans mon fichier
-        for line in file:
-            # ignorer les headers
-            if line.startswith('@SQ'):
-                columns = line.split('\t')
-                for col in columns:
-                    if col.__contains__("LN:"):
-                        LN = col.split(":")
-                        chrom_length = int(LN[1])
 
     interval_start, interval_end = divise_chromosome(chrom_length, 1000)
 
