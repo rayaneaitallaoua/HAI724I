@@ -33,8 +33,8 @@ pip install matplotlib
 To launch the program :
 
 ```bash
-chmod +x launch.sh
+chmod +x ./launch.sh
 ```
 ```bash
-launch.sh <chemin vers le fichier SAM>
+./launch.sh <chemin vers le fichier SAM>
 ```
