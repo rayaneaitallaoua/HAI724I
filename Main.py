@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 # flag value
 x = 4
 taille_interv = 10000
-output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results_.txt'
+output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/dictionnary.txt'
 
 # Où est mon fichier?
 file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
@@ -97,6 +97,7 @@ def num_read_per_flag(clean_reads: dict):
 
 
 # print(num_read_per_flag(reads_QMAP30_or_FLAGNOT4(file_path)))
+
 
 # Question 3 : ou les reads sont ils mappés
 def divise_chromosome(file_path: str, taille_interval: int):
@@ -232,7 +233,7 @@ def read_count_per_quality(file_path: str):
     return read_count_quality
 
 
-def plot_read_counts_per_quality_with_avg(reads_per_interval):
+def plot_read_counts_per_quality(reads_per_interval):
     """
     Plots a bar chart with interval indices on the X-axis and the count of reads on the Y-axis.
 
@@ -252,8 +253,6 @@ def plot_read_counts_per_quality_with_avg(reads_per_interval):
     plt.ylabel('Read Count', fontsize=12)
     plt.title(f'Read count per distribution values', fontsize=14)
 
-    plt.legend(fontsize=10, loc='upper right')
-
     # Adjusting tick spacing and appearance
     plt.xticks(interval_indices[::max(1, len(interval_indices) // 10)], rotation=45)  # Avoid overcrowding
     plt.grid(axis='y', linestyle='--', alpha=0.7)
@@ -263,6 +262,23 @@ def plot_read_counts_per_quality_with_avg(reads_per_interval):
     plt.show()
 
 
-print(read_count_per_quality(file_path))
+# print(read_count_per_quality(file_path))
 
-plot_read_counts_per_quality_with_avg(read_count_per_quality(file_path))
+# plot_read_counts_per_quality_with_avg(read_count_per_quality(file_path))
+
+
+def save_dict_to_file(dictionnary: dict, output_file: str):
+    #    Saves the interval counts to a file.
+
+    #    Args:
+    #        interval_counts (dict): A dictionary where keys are interval indices and values are read counts.
+    #        output_file (str): The path to the file where the data will be saved.
+
+    with open(output_file, 'w') as file:
+        file.write("Keys\tRead_Count\n")  # Header
+        for interval, count in sorted(dictionnary.items()):
+            file.write(f"{interval}\t{count}\n")
+    print(f"Interval counts have been saved to {output_file}")
+
+
+# save_dict_to_file(num_read_interval(file_path, taille_interv), output_file)

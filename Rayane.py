@@ -10,6 +10,7 @@ file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
 
 def mapped_read_count(filepath:str):
 
+
 def reads_QMAP30_or_FLAGNOT4(file_path: str):
     # clean_reads is a dictionnary with read numbers as keys and values
     # are lists containing the flag, start and end value for each read
