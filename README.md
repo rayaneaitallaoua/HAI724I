@@ -33,6 +33,8 @@ pip install matplotlib
 To launch the program :
 
 ```bash
-head mapping.sam | grep '^@' | echo ""
-python3 main.py
+chmod +x launch.sh
+```
+```bash
+launch.sh <chemin vers le fichier SAM>
 ```

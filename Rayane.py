@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
-
+import sys
 #flag value
 x = 4
 
 output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/results_.txt'
 
 # Où est mon fichier?
-file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
+file_path = sys.argv[1]
 
 def mapped_read_count(filepath:str):
 

@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
-
+import sys
 # flag value
 x = 4
 taille_interv = 10000
 output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/dictionnary.txt'
 
 # Où est mon fichier?
-file_path = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/mapping.sam'
+file_path = sys.argv[1]
 
 
 # Question 1
@@ -30,7 +30,7 @@ def mapped_read_count(filepath: str):
     return compte_read
 
 
-# print(f"le nombre de read mappé est: {mapped_read_count(file_path)}")
+print(f"le nombre de read mappé est: {mapped_read_count(file_path)}")
 
 
 # Question 2
