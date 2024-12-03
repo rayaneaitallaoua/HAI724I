@@ -5,16 +5,16 @@ This project provides a set of Python scripts for processing and visualizing gen
 ## Features
 
 - **Filter Reads**:
-  - Select reads based on quality (QMAP > 30) and FLAG values (not unmapped).
+  - Select reads based on quality (QMAP < 30) and FLAG values (not unmapped).
   
 - **Interval-Based Analysis**:
   - Divide chromosomes into intervals and count the number of reads within each interval.
   
 - **Quality Analysis**:
-  - Analyze and visualize the distribution of reads across MAPQ quality intervals.
+  - Analyze and visualize the distribution of reads across MAPQ quality values.
   
 - **Visualization**:
-  - Generate bar charts and line graphs for interval-based and quality-based read counts.
+  - Generate bar charts interval-based and quality-based read counts.
 
 - **Export Results**:
   - Save interval read counts to a file for further analysis.
