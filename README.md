@@ -27,4 +27,12 @@ This project provides a set of Python scripts for processing and visualizing gen
 Install required packages using:
 ```bash
 pip install matplotlib
+```
 
+## Execution
+To launch the program :
+
+```bash
+head mapping.sam | grep '^@' | echo ""
+python3 main.py
+```
