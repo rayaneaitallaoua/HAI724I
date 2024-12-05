@@ -1,104 +1,160 @@
 import matplotlib.pyplot as plt
 import sys
+
 # flag value
 x = 4
 taille_interv = 10000
 output_file = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/dictionnary.txt'
 
 # Où est mon fichier?
-file_path = sys.argv[1]
+file_path = "/Users/ayoubrayaneaitallaoua//Documents/ProjetSyst/mapping.sam"  # sys.argv[1]
+
+
+# Fonction pour lire le SAM et le stocker en dictionnaire : sam_reds
+# sam_reads{
+#   [chr1] : {
+#            list[i]   : [flag, read_start, read_end, MAPQ]
+#            list[i+1] : [flag, read_start, read_end, MAPQ]
+#                ...
+#            }
+#
+#   [chr2] : {
+#            list[i]   : [flag, read_start, read_end, MAPQ]
+#            list[i+1] : [flag, read_start, read_end, MAPQ]
+#                ...
+#            }
+#
+#   [...]
+def read_sam(file_path: str):
+    sam_reads = {}
+    sam_reads["*"] = {}
+    i = 0
+
+    with open(file_path, "r") as f:
+        for line in f:
+
+            # divise le SAM en colonnes utilisant \t
+            columns = line.split('\t')
+
+            if line.startswith('@'):
+                if line.startswith('@SQ'):
+                    for column in columns:
+                        if column.startswith('SN'):
+                            chromosome_name = column.split(":")[1]
+                            sam_reads[chromosome_name] = {}
+                continue
+
+            # extraire les flags de chaque read
+            flag_value = int(columns[1])
+
+            # extraire POS pour chaque read
+            read_start = int(columns[3])
+
+            # extraire la longueur pour calculer la fin du read
+            read_length = abs(int(columns[8])) if columns[8].isdigit() else len(columns[9])
+            read_end = read_start + read_length - 1  # 1-based system pour les position
+
+            # stocker la valeur de QMAP
+            read_quality = int(columns[4])
+
+            # pour chaque read i, stocker dans la
+            reads_values = (flag_value, read_start, read_end, read_quality)
+            chromosome = columns[2]
+            if chromosome not in sam_reads.keys():
+                sam_reads[chromosome] = {}
+
+            sam_reads[chromosome][i] = reads_values
+            #   |-------||----------||-|
+            #   1st dict   2nd dict  3rd dict stores the read_values
+
+            # incrémenter i
+            i += 1
+
+    return sam_reads
+
+
+read_sam_dict = read_sam(file_path)
+
+
+def filter_MAPQ_or_FLAG(reads_per_chromosome: dict, filter: int, mapped_only: bool):
+    filtered_reads_per_chromosome = {}
+
+    # Determine the flag
+    flag = 4 if mapped_only else 0
+
+    # Process mapped chromosomes
+    for chromosome in reads_per_chromosome:
+        # Initialize dictionary for this chromosome
+        if chromosome not in filtered_reads_per_chromosome:
+            filtered_reads_per_chromosome[chromosome] = {}
+
+        for read in reads_per_chromosome[chromosome]:
+            if (int(reads_per_chromosome[chromosome][read][0]) & flag == 0
+                    and int(reads_per_chromosome[chromosome][read][3]) >= filter):
+                filtered_reads_per_chromosome[chromosome][read] = reads_per_chromosome[chromosome][read]
+
+    # Remove chromosomes with no filtered reads
+    filtered_reads_per_chromosome = {
+        chrom: reads
+        for chrom, reads in filtered_reads_per_chromosome.items()
+        if reads
+    }
+
+    return filtered_reads_per_chromosome
 
 
 # Question 1
-def mapped_read_count(filepath: str):
-    x = 4
-    compte_read = 0
+def mapped_read_count(reads_per_chromosome: dict):
+    compte_mapped = 0
+    compte_total = 0
+    resultat_mapped = {}
+    i = 0
 
-    with open(filepath, "r") as f:
-        for line in f:
+    for chromosome in reads_per_chromosome:
+        for read in reads_per_chromosome[chromosome]:
+            compte_total += 1
+            if int(reads_per_chromosome[chromosome][read][0]) & 4 == 0:
+                compte_mapped += 1
 
-            if line.startswith('@'):
-                continue
-            columns = line.split('\t')
+        resultat_mapped[chromosome] = compte_mapped
 
-            flag = columns[1]
-            # print (f"name: {name}", f"flag: {flag}")
+    if compte_total == 0:
+        print("No reads found in the input data.")
+        return
+    print(resultat_mapped)
+    pourcentage = round(((compte_mapped / compte_total) * 100), 2)
+    print(f"The number of mapped reads is : {compte_mapped} ({pourcentage}%)")
 
-            if int(flag) & x == 0:
-                compte_read = compte_read + 1
 
-    return compte_read
-
-# CORRECTION mapped reads / total (percentage)
-# print(f"le nombre de read mappé est: {mapped_read_count(file_path)}")
-
+mapped_read_count(read_sam_dict)
 
 # Question 2
 # filtre pour MAPQ > 30 AND Flag & 4 == 0
-def reads_QMAP30_or_FLAGNOT4(file_path: str):
-    # clean reads est un dictionnaire dont lequel le numéro du read est une clé
-    # est les valeurs sont : flag, debut du read, fin du read et MAPQ. Tout en int.
-
-    clean_reads = {}
-
-    # ouvrir le fichier en lecture 'r' sous le nom file
-    with open(file_path, 'r') as file:
-        # pour chaque ligne dans mon fichier
-        i = 0
-
-        for line in file:
-            # ignorer les headers
-            if line.startswith('@'):
-                continue
-
-            # Diviser les colonnes en utilisant \t
-            columns = line.split('\t')
-
-            if (int(columns[1]) & x == 0) and int(columns[4]) > 30:
-                # extraire les flags de chaque read
-                flag_value = int(columns[1])
-
-                # extraire POS pour chaque read
-                read_start = int(columns[3])
-
-                # extraire la longueur pour calculer la fin du read
-                read_length = abs(int(columns[8]))
-                read_end = read_start + read_length - 1  # 1-based system pour les position
-
-                # stocker la valeur de QMAP
-                read_quality = int(columns[4])
-
-                # pour chaque read i, stocker dans la
-                clean_reads_values = flag_value, read_start, read_end, read_quality
-                clean_reads[i] = clean_reads_values
-
-                # incrémenter i
-                i += 1
-
-    return clean_reads
+filtered = filter_MAPQ_or_FLAG(read_sam_dict, 0, True)
+print(filtered.keys())
+len_Reference_filter = len(filtered['Reference'])
+print(f'len_Reference_filter =  {len_Reference_filter}')
 
 
-# print(reads_QMAP30_or_FLAGNOT4(file_path))
-
-
-def num_read_per_flag(clean_reads: dict):
+def num_read_per_flag(reads_per_chromosome: dict):
     flag_distinct_reps = {}
+    parsed_reads_dict = {}
 
-    for i in clean_reads:
-        read_values = clean_reads[i]
-        flag_value = read_values[0]
+    i = 0
 
-        if flag_value in flag_distinct_reps:
-            flag_distinct_reps[flag_value] = flag_distinct_reps[flag_value] + 1
-        else:
-            flag_distinct_reps[flag_value] = 1
+    for chromosome in reads_per_chromosome:
+        for read in reads_per_chromosome[chromosome]:
+            if reads_per_chromosome[chromosome][read][0] in flag_distinct_reps.keys():
+                flag_distinct_reps[reads_per_chromosome[chromosome][read][0]] += 1
+            else:
+                flag_distinct_reps[reads_per_chromosome[chromosome][read][0]] = 1
 
     return flag_distinct_reps
 
 
-# print(num_read_per_flag(reads_QMAP30_or_FLAGNOT4(file_path)))
+print(num_read_per_flag(read_sam_dict))
 
-
+#not adapted yet, to adapt
 # Question 3 : ou les reads sont ils mappés
 def divise_chromosome(file_path: str, taille_interval: int):
     interv_dict = {}
@@ -262,9 +318,9 @@ def plot_read_counts_per_quality(reads_per_interval):
     plt.show()
 
 
-print(read_count_per_quality(file_path))
+#print(read_count_per_quality(file_path))
 
-plot_read_counts_per_quality(read_count_per_quality(file_path))
+#plot_read_counts_per_quality(read_count_per_quality(file_path))
 
 
 def save_dict_to_file(dictionnary: dict, output_file: str):
@@ -279,6 +335,5 @@ def save_dict_to_file(dictionnary: dict, output_file: str):
         for interval, count in sorted(dictionnary.items()):
             file.write(f"{interval}\t{count}\n")
     print(f"Interval counts have been saved to {output_file}")
-
 
 # save_dict_to_file(num_read_interval(file_path, taille_interv), output_file)
