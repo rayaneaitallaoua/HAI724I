@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import sys
-
-interval_size_user = 10000
-interval_size_for_MAPQ_plot_user = 10
+save_result = True # set by user
+save_plot = True # set by user
+interval_size_user = 10000 # set by user
+interval_size_for_MAPQ_plot_user = 10 # set by user
+mapped_only = True # set by user / convert from string in the bash input to boolean here
 save_result_to = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/analysis_result'  # to set by user
 
 # Où est mon fichier?
@@ -40,13 +42,15 @@ def read_sam(file_path: str):
                 if line.startswith('@SQ'):
                     for column in columns:
                         if column.startswith('LN'):
-                            chromosome_length_info = column.split(":")[1]
-                            chromosome_length = int(chromosome_length_info.split('\n')[0])
+                            chromosome_length_info = column.split(":")[1] # récup la longueur des chroms
+                            chromosome_length = int(chromosome_length_info) # transform longueur to entier
                             chromosome_lengths.append(chromosome_length)
+                            # obtention d'une liste de longueurs des chroms
 
                         if column.startswith('SN'):
                             chromosome_name = column.split(":")[1]
                             reads_per_chromosome[chromosome_name] = {}
+                            # obtention dict dont clé [SN]
                 continue
 
             # extraire les flags de chaque read
@@ -66,12 +70,13 @@ def read_sam(file_path: str):
             reads_values = (flag_value, read_start, read_end, read_quality)
             chromosome = columns[2]
 
-            if chromosome not in reads_per_chromosome.keys():
+            if chromosome not in reads_per_chromosome.keys(): # malgré la récup des SN en haut, je vérifie quand même
+                # que tout les chromosome + symboles chelous sont pris en considération
                 reads_per_chromosome[chromosome] = {}
 
             reads_per_chromosome[chromosome][i] = reads_values
-            #   |-------||----------||-|
-            #   1st dict   2nd dict  3rd dict stores the read_values
+            #|-----------------||----------||-|
+            #   1st dict          2nd dict  3rd dict stores the read_values
 
             # incrémenter i
             i += 1
