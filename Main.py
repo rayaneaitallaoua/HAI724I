@@ -1,13 +1,23 @@
 import matplotlib.pyplot as plt
 import sys
-save_result_and_plot = True # set by user
-interval_size_user = 10000 # set by user
-interval_size_for_MAPQ_plot_user = 10 # set by user
-mapped_only = True # set by user / convert from string in the bash input to boolean here
-save_result_to = '/Users/ayoubrayaneaitallaoua/Documents/ProjetSyst/analysis_result'  # to set by user
 
-# Où est mon fichier?
-file_path = "/Users/ayoubrayaneaitallaoua//Documents/ProjetSyst/mapping.sam"  # sys.argv[1]
+# Where is my file?
+file_path = sys.argv[1]
+
+# mapped reads only or not?
+mapped_only = bool(sys.argv[2])
+
+# if filter for MapQ then reads > filter
+filter_mapQ = int(sys.argv[3])
+
+# interval size to reads couverage per chromosome
+interval_size_user = int(sys.argv[4])
+
+# interval of MapQ for the number of reads per MapQ value
+interval_size_for_MAPQ_plot_user = int(sys.argv[5])
+
+# where to save my results?
+save_result_to = sys.argv[6]
 
 
 # Fonction pour lire le SAM et le stocker en dictionnaire : sam_reds
@@ -41,8 +51,8 @@ def read_sam(file_path: str):
                 if line.startswith('@SQ'):
                     for column in columns:
                         if column.startswith('LN'):
-                            chromosome_length_info = column.split(":")[1] # récup la longueur des chroms
-                            chromosome_length = int(chromosome_length_info) # transform longueur to entier
+                            chromosome_length_info = column.split(":")[1]  # récup la longueur des chroms
+                            chromosome_length = int(chromosome_length_info)  # transform longueur to entier
                             chromosome_lengths.append(chromosome_length)
                             # obtention d'une liste de longueurs des chroms
 
@@ -69,7 +79,7 @@ def read_sam(file_path: str):
             reads_values = (flag_value, read_start, read_end, read_quality)
             chromosome = columns[2]
 
-            if chromosome not in reads_per_chromosome.keys(): # malgré la récup des SN en haut, je vérifie quand même
+            if chromosome not in reads_per_chromosome.keys():  # malgré la récup des SN en haut, je vérifie quand même
                 # que tout les chromosome + symboles chelous sont pris en considération
                 reads_per_chromosome[chromosome] = {}
 
@@ -86,10 +96,7 @@ def read_sam(file_path: str):
 reads_per_chromosome_raw, len_per_chrom = read_sam(file_path)
 
 
-#print(len_per_chrom)
-
-
-def filter_MAPQ_or_FLAG(reads_per_chromosome: dict, filter: int, mapped_only: bool):
+def filter_MAPQ_or_FLAG(reads_per_chromosome: dict, filter_mapQ: int, mapped_only: bool):
     filtered_reads_per_chromosome = {}
 
     # Determine the flag
@@ -103,7 +110,7 @@ def filter_MAPQ_or_FLAG(reads_per_chromosome: dict, filter: int, mapped_only: bo
 
         for read in reads_per_chromosome[chromosome]:
             if (int(reads_per_chromosome[chromosome][read][0]) & flag == 0
-                    and int(reads_per_chromosome[chromosome][read][3]) >= filter):
+                    and int(reads_per_chromosome[chromosome][read][3]) >= filter_mapQ):
                 filtered_reads_per_chromosome[chromosome][read] = reads_per_chromosome[chromosome][read]
 
     # Remove chromosomes with no filtered reads
@@ -162,19 +169,11 @@ def mapped_read_count(reads_per_chromosome: dict):
     save_file(to_save, output_file_for_mapped_read)
 
 
-#mapped_read_count(reads_per_chromosome_raw)
+mapped_read_count(reads_per_chromosome_raw)
 
 # Question 2
-# filtre pour MAPQ > 30 AND Flag & 4 == 0
 
-reads_per_chromosome_filtered = filter_MAPQ_or_FLAG(reads_per_chromosome_raw, 30, True)
-
-
-#filtered = filter_MAPQ_or_FLAG(reads_per_chromosome_raw, 0, True)
-#print(len(filtered['Reference']))
-
-
-#print(f'len_Reference2_filter =  {len_Reference_filter}')
+reads_per_chromosome_filtered = filter_MAPQ_or_FLAG(reads_per_chromosome_raw, filter_mapQ, mapped_only)
 
 
 def num_read_per_flag(reads_per_chromosome: dict):
@@ -214,7 +213,7 @@ def num_read_per_flag(reads_per_chromosome: dict):
     return flag_distinct_reps
 
 
-#num_read_per_flag(reads_per_chromosome_raw,False)
+num_read_per_flag(reads_per_chromosome_raw)
 
 
 # Question 3 : ou les reads sont ils mappés
@@ -258,9 +257,6 @@ def divise_chromosome(reads_per_chromosome: dict, chromosome_lengths: list, tail
             interv_index += 1
 
     return interv_per_chromosome_total
-
-
-#print(divise_chromosome(reads_per_chromosome, len_per_chrom, 10))
 
 
 def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_size_user: int):
@@ -333,18 +329,14 @@ def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_
 
         plt.savefig(f"{save_result_to}/graph_read_per_interval_{chromosome}")
 
-        plt.show()
-
     for chromosome in num_read_per_interval_per_chromosome:
         plot_read_counts_with_avg(num_read_per_interval_per_chromosome[chromosome], chromosome)
 
 
-#num_read_interval(reads_per_chromosome_filtered, len_per_chrom, interval_size_user, False)
+num_read_interval(reads_per_chromosome_filtered, len_per_chrom, interval_size_user)
 
 
-# plot_read_counts_with_avg(num_read_interval(file_path, taille_interv))
-
-def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool):
+def read_count_per_quality(reads_per_chromosome: dict):
     """
     Analyzes and optionally plots/saves the read counts per MAPQ value for each chromosome.
 
@@ -354,6 +346,7 @@ def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool):
         save_result (bool): Whether to save the MAPQ table for each chromosome.
         save_result_to (str): Path to save the results (plots and files).
     """
+
     def plot_read_counts_per_quality(chromosome: str, mapq_counts: dict):
         """Plots and optionally saves the read count distribution for a single chromosome."""
         mapq_values = list(mapq_counts.keys())
@@ -374,11 +367,8 @@ def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool):
 
         plt.tight_layout()
 
-        if save_plot:
-            plt.savefig(f"{save_result_to}/graph_read_per_MAPQ_{chromosome}.png")
-            print(f"Plot saved for chromosome {chromosome} at {save_result_to}")
-
-        plt.show()
+        plt.savefig(f"{save_result_to}/graph_read_per_MAPQ_{chromosome}.png")
+        print(f"Plot saved for chromosome {chromosome} at {save_result_to}")
 
     def save_file(content: str, output_file: str):
         """Saves formatted content to a file."""
@@ -409,7 +399,9 @@ def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool):
         # Plot the results
         plot_read_counts_per_quality(chromosome, mapq_distinct_reps)
 
-#read_count_per_quality(reads_per_chromosome_raw, False, True)
+
+read_count_per_quality(reads_per_chromosome_raw)
+
 
 def save_file(content: str, output_file: str):
     #    Saves the interval counts to a file.
