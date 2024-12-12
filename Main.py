@@ -17,8 +17,9 @@ interval_size_user = int(sys.argv[4])
 interval_size_for_MAPQ_plot_user = int(sys.argv[5])
 
 # where to save my results?
-save_result_to = sys.argv[6]
+save_result_to = str(sys.argv[6])
 
+print("~~~~~~~~~ Your analysis results ~~~~~~~~~")
 
 # Fonction pour lire le SAM et le stocker en dictionnaire : sam_reds
 # reads_per_chromosome{
@@ -125,6 +126,9 @@ def filter_MAPQ_or_FLAG(reads_per_chromosome: dict, filter_mapQ: int, mapped_onl
 
 # Question 1
 def mapped_read_count(reads_per_chromosome: dict):
+
+    print("~~~~~~~~~~~ The count of mapped reads ~~~~~~~~~~~")
+
     resultat_mapped = {}
     i = 0
     compte_total = 0
@@ -167,6 +171,7 @@ def mapped_read_count(reads_per_chromosome: dict):
 
     output_file_for_mapped_read = f"{save_result_to}/mapped_read_count.txt"
     save_file(to_save, output_file_for_mapped_read)
+    print(f"Your results were saved to {output_file_for_mapped_read}\n")
 
 
 mapped_read_count(reads_per_chromosome_raw)
@@ -177,6 +182,8 @@ reads_per_chromosome_filtered = filter_MAPQ_or_FLAG(reads_per_chromosome_raw, fi
 
 
 def num_read_per_flag(reads_per_chromosome: dict):
+    print("~~~~~~~~~~~ The count of reads per flag value ~~~~~~~~~~~")
+
     flag_distinct_reps = {}
     parsed_reads_dict = {}
     flags = ""
@@ -208,6 +215,8 @@ def num_read_per_flag(reads_per_chromosome: dict):
 
     output_file_for_num_read_flag = f"{save_result_to}/read_count_per_flag.txt"
     save_file(to_print, output_file_for_num_read_flag)
+
+    print(f"Your results were saved to {output_file_for_num_read_flag}\n")
 
     print(to_print)
     return flag_distinct_reps
@@ -260,6 +269,9 @@ def divise_chromosome(reads_per_chromosome: dict, chromosome_lengths: list, tail
 
 
 def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_size_user: int):
+
+    print("~~~~~~~~~~~ The number of reads per interval for each chromosome ~~~~~~~~~~~")
+
     num_read_per_interval_per_chromosome = {}
 
     intervals_per_chromosome = divise_chromosome(reads_per_chromosome, len_per_chrom, interval_size_user)
@@ -327,7 +339,10 @@ def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_
         # Show the plot
         plt.tight_layout()
 
-        plt.savefig(f"{save_result_to}/graph_read_per_interval_{chromosome}")
+        savefig = f"{save_result_to}/graph_read_per_interval_{chromosome}"
+        plt.savefig(savefig)
+
+        print(f"Your plot was saved to {savefig}")
 
     for chromosome in num_read_per_interval_per_chromosome:
         plot_read_counts_with_avg(num_read_per_interval_per_chromosome[chromosome], chromosome)
@@ -343,6 +358,8 @@ def read_count_per_quality(reads_per_chromosome: dict):
     Args:
         reads_per_chromosome (dict): A dictionary of reads grouped by chromosomes.
     """
+
+    print("~~~~~~~~~~~ The number of reads per MapQ value ~~~~~~~~~~~")
 
     def plot_read_counts_per_quality(chromosome: str, mapq_counts: dict):
         """Plots and optionally saves the read count distribution for a single chromosome."""
@@ -364,8 +381,10 @@ def read_count_per_quality(reads_per_chromosome: dict):
 
         plt.tight_layout()
 
-        plt.savefig(f"{save_result_to}/graph_read_per_MAPQ_{chromosome}.png")
-        print(f"Plot saved for chromosome {chromosome} at {save_result_to}")
+        savefig = f"{save_result_to}/graph_read_per_MAPQ_{chromosome}.png"
+        plt.savefig(savefig)
+
+        print(f"Plot saved for chromosome: {chromosome} at {savefig}")
 
     def save_file(content: str, output_file: str):
         """Saves formatted content to a file."""

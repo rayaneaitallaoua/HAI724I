@@ -21,10 +21,11 @@ if grep -q '^@SQ' $file_path_input; then
 	#si l'utilisateur répond oui, il fournira un chemin 
 	#si l'utilisateur répond non, un message s'affiche indiquant que le travail sera sauvegardé dans la répertoire actuelle 
     	if [[ $path_choice == [yY] || $path_choice == [yY][eE][sS] ]]; then
-    		read -p "Insert your desired file result path: " exit_path
-    		while [[ ! -d "$exit_path" ]]; then
+    		read -p "Insert your desired file result path (with no spaces) : " exit_path
+    		while [[ ! -d "$exit_path" ]]; do
     			echo "The specified directory does not exist. Please provide a valid directory."
-    			read -p "Insert your desired file result path: " exit_path
+    			read -p "Insert your desired file result path (with no spaces) : " exit_path
+    		done
 	else
 		exit_path=$(pwd)
 		echo "your results will be saved in the current directory which is [$exit_path] "
@@ -60,10 +61,10 @@ if grep -q '^@SQ' $file_path_input; then
 	done
 
 	if [[ $filter_mapq == [yY] || $filter_mapq == [yY][eE][sS] ]]; then
-    read -p "do you want to chose your MAPQ score? [Y/N]:" filter_mapq_choice &&[[ $filter_mapq_choice == [yY] || $filter_mapq_choice == [yY][eE][sS] || $filter_mapq_choice == [nN] || $filter_mapq_choice == [nN][oO] ]]
+    read -p "do you want to chose your MAPQ score? if no, the default value is MAPQ > 30 [Y/N]:" filter_mapq_choice &&[[ $filter_mapq_choice == [yY] || $filter_mapq_choice == [yY][eE][sS] || $filter_mapq_choice == [nN] || $filter_mapq_choice == [nN][oO] ]]
     while [[ $filter_mapq_choice != [yY] && $filter_mapq_choice != [yY][eE][sS] && $filter_mapq_choice != [nN] && $filter_mapq_choice != [nN][oO] ]]; do
     echo "please enter a valid value [Y/N]"
-    read -p "do you want to chose your MAPQ score? [Y/N]:" filter_mapq_choice &&[[ $filter_mapq_choice == [yY] || $filter_mapq_choice == [yY][eE][sS] || $filter_mapq_choice == [nN] || $filter_mapq_choice == [nN][oO] ]]
+    read -p "do you want to chose your MAPQ score? if no, the default value is MAPQ > 30 [Y/N]:" filter_mapq_choice &&[[ $filter_mapq_choice == [yY] || $filter_mapq_choice == [yY][eE][sS] || $filter_mapq_choice == [nN] || $filter_mapq_choice == [nN][oO] ]]
     done
     
     if [[ $filter_mapq_choice == [yY] || $filter_mapq_choice == [yY][eE][sS] ]]; then
@@ -81,11 +82,11 @@ if grep -q '^@SQ' $file_path_input; then
     mapq_value=0
   fi
 
-	read -p "Would you like to choose your intervals for viewing how the reads are mapped on the chromosome? if no, then default is 10k [Y/N]: " interval_chrs &&[[ $interval_chrs == [yY] || $interval_chrs == [yY][eE][sS] || $interval_chrs == [nN] || $interval_chrs == [nN][oO] ]]
+	read -p "Would you like to choose your intervals for viewing how the reads are mapped on the chromosomes? if no, then default is 10k [Y/N]: " interval_chrs &&[[ $interval_chrs == [yY] || $interval_chrs == [yY][eE][sS] || $interval_chrs == [nN] || $interval_chrs == [nN][oO] ]]
 
 	while [[ $interval_chrs != [yY] && $interval_chrs != [yY][eE][sS] && $interval_chrs != [nN] && $interval_chrs != [nN][oO] ]]; do
 	  echo "please enter a valid value [Y/N]"
-    read -p "Would you like to choose your intervals for viewing how the reads are mapped on the chromosome? if no, then default is 10k [Y/N]: " interval_chrs &&[[ $interval_chrs == [yY] || $interval_chrs == [yY][eE][sS] || $interval_chrs == [nN] || $interval_chrs == [nN][oO] ]]
+    read -p "Would you like to choose your intervals for viewing how the reads are mapped on the chromosomes? if no, then default is 10k [Y/N]: " interval_chrs &&[[ $interval_chrs == [yY] || $interval_chrs == [yY][eE][sS] || $interval_chrs == [nN] || $interval_chrs == [nN][oO] ]]
 	done
 
 	if [[ $interval_chrs == [yY] || $interval_chrs == [yY][eE][sS] ]]; then
@@ -113,12 +114,11 @@ if grep -q '^@SQ' $file_path_input; then
 		echo "You chose no interval length, it will be set to 10 by default"
 		interval_mapq_length=10
 	fi
+
+	echo -e "you chose the following parameters: \n Path to sam file = {$file_path_input} \n Mapped reads only: {$mapped_only} \n Mapq minimum filter = {$mapq_value} \n Interval chromosomes lengths = {$interval_chrs_length} \n Interval length for mapq = {$interval_mapq_length} \n Your results will be saved in: {$exit_path}"
+
+  python3 Main.py $file_path_input $mapped_only $mapq_value $interval_chrs_length $interval_mapq_length $result_file
+
 else
 	echo "it is not a sam file :( "
 fi
-
-echo -e "you chose the following parameters: \n Path to sam file = {$file_path_input} \n Mapped reads only: {$mapped_only} \n Mapq minimum filter = {$mapq_value} \n Interval chromosomes lengths = {$interval_chrs_length} \n Interval length for mapq = {$interval_mapq_length} \n Your results will be saved in: {$exit_path}"
-
-
-
-python3 Main.py $file_path_input $mapped_only $mapq_value $interval_chrs_length $interval_mapq_length $result_file
