@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import sys
-save_result = True # set by user
-save_plot = True # set by user
+save_result_and_plot = True # set by user
 interval_size_user = 10000 # set by user
 interval_size_for_MAPQ_plot_user = 10 # set by user
 mapped_only = True # set by user / convert from string in the bash input to boolean here
@@ -118,7 +117,7 @@ def filter_MAPQ_or_FLAG(reads_per_chromosome: dict, filter: int, mapped_only: bo
 
 
 # Question 1
-def mapped_read_count(reads_per_chromosome: dict, save_result: bool):
+def mapped_read_count(reads_per_chromosome: dict):
     resultat_mapped = {}
     i = 0
     compte_total = 0
@@ -159,12 +158,11 @@ def mapped_read_count(reads_per_chromosome: dict, save_result: bool):
     print(f"The number of mapped reads is : {sum(resultat_mapped.values())} ({pourcentage}%)")
     to_save += f"The number of mapped reads is : {sum(resultat_mapped.values())} ({pourcentage}%)\n"
 
-    if save_result:
-        output_file_for_mapped_read = f"{save_result_to}/mapped_read_count.txt"
-        save_file(to_save, output_file_for_mapped_read)
+    output_file_for_mapped_read = f"{save_result_to}/mapped_read_count.txt"
+    save_file(to_save, output_file_for_mapped_read)
 
 
-#mapped_read_count(reads_per_chromosome_raw,False)
+#mapped_read_count(reads_per_chromosome_raw)
 
 # Question 2
 # filtre pour MAPQ > 30 AND Flag & 4 == 0
@@ -179,7 +177,7 @@ reads_per_chromosome_filtered = filter_MAPQ_or_FLAG(reads_per_chromosome_raw, 30
 #print(f'len_Reference2_filter =  {len_Reference_filter}')
 
 
-def num_read_per_flag(reads_per_chromosome: dict, save_result: bool):
+def num_read_per_flag(reads_per_chromosome: dict):
     flag_distinct_reps = {}
     parsed_reads_dict = {}
     flags = ""
@@ -209,9 +207,8 @@ def num_read_per_flag(reads_per_chromosome: dict, save_result: bool):
 
     to_print = f"{'flag':<10}{'read count':<10}\n{'-' * 20}\n{flags}"
 
-    if save_result:
-        output_file_for_num_read_flag = f"{save_result_to}/read_count_per_flag.txt"
-        save_file(to_print, output_file_for_num_read_flag)
+    output_file_for_num_read_flag = f"{save_result_to}/read_count_per_flag.txt"
+    save_file(to_print, output_file_for_num_read_flag)
 
     print(to_print)
     return flag_distinct_reps
@@ -266,7 +263,7 @@ def divise_chromosome(reads_per_chromosome: dict, chromosome_lengths: list, tail
 #print(divise_chromosome(reads_per_chromosome, len_per_chrom, 10))
 
 
-def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_size_user: int, save_plot: bool):
+def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_size_user: int):
     num_read_per_interval_per_chromosome = {}
 
     intervals_per_chromosome = divise_chromosome(reads_per_chromosome, len_per_chrom, interval_size_user)
@@ -334,9 +331,7 @@ def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_
         # Show the plot
         plt.tight_layout()
 
-        if save_plot:
-            plt.savefig(
-                f"{save_result_to}/graph_read_per_interval_{chromosome}")
+        plt.savefig(f"{save_result_to}/graph_read_per_interval_{chromosome}")
 
         plt.show()
 
@@ -349,7 +344,7 @@ def num_read_interval(reads_per_chromosome: dict, len_per_chrom: list, interval_
 
 # plot_read_counts_with_avg(num_read_interval(file_path, taille_interv))
 
-def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool, save_result: bool):
+def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool):
     """
     Analyzes and optionally plots/saves the read counts per MAPQ value for each chromosome.
 
@@ -408,9 +403,8 @@ def read_count_per_quality(reads_per_chromosome: dict, save_plot: bool, save_res
         output_table = f"\n** Results for Chromosome {chromosome} **\n{mapqs}\n"
 
         # Save the results table
-        if save_result:
-            output_file = f"{save_result_to}/table_read_per_MAPQ_{chromosome}.txt"
-            save_file(output_table, output_file)
+        output_file = f"{save_result_to}/table_read_per_MAPQ_{chromosome}.txt"
+        save_file(output_table, output_file)
 
         # Plot the results
         plot_read_counts_per_quality(chromosome, mapq_distinct_reps)
