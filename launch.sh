@@ -22,10 +22,17 @@ if grep -q '^@SQ' $file_path_input; then
 	#si l'utilisateur répond non, un message s'affiche indiquant que le travail sera sauvegardé dans la répertoire actuelle 
     	if [[ $path_choice == [yY] || $path_choice == [yY][eE][sS] ]]; then
     		read -p "Insert your desired file result path: " exit_path
+    		while [[ ! -d "$exit_path" ]]; then
+    			echo "The specified directory does not exist. Please provide a valid directory."
+    			read -p "Insert your desired file result path: " exit_path
 	else
 		exit_path=$(pwd)
 		echo "your results will be saved in the current directory which is [$exit_path] "
 	fi
+	
+	result_file="$exit_path/analysis_results"
+	mkdir "$result_file"
+
 	
 	#option de filtrer les résultats (avoir que des reads mappés ou pas)	
 	read -p "do you want mapped reads only? [Y/N]: " mapped_only&&[[ $mapped_only == [yY] || $mapped_only == [yY][eE][sS] || $mapped_only == [nN][oO] || $mapped_only == [nN] ]]
@@ -44,7 +51,8 @@ if grep -q '^@SQ' $file_path_input; then
 	elif [[ $mapped_only == [nN] || $mapped_only == [nN][oO] ]]; then
 		mapped_only='False'
 	fi
-
+	
+	#option de filtrage par mapq
 	read -p "do you want to filter by MAPQ? if no, then default is 0 [Y/N]: " filter_mapq&&[[ $filter_mapq == [yY] || $filter_mapq == [yY][eE][sS] || $filter_mapq == [nN][oO] || $filter_mapq == [nN] ]]
 	while [[ $filter_mapq != [yY] && $filter_mapq != [yY][eE][sS] && $filter_mapq != [nN][oO] && $filter_mapq != [nN] ]]; do
 	  echo "please enter a valid value [Y/N]"
@@ -111,4 +119,6 @@ fi
 
 echo -e "you chose the following parameters: \n Path to sam file = {$file_path_input} \n Mapped reads only: {$mapped_only} \n Mapq minimum filter = {$mapq_value} \n Interval chromosomes lengths = {$interval_chrs_length} \n Interval length for mapq = {$interval_mapq_length} \n Your results will be saved in: {$exit_path}"
 
-python3 Main.py $file_path_input $mapped_only $mapq_value $interval_chrs_length $interval_mapq_length $exit_path
+
+
+python3 Main.py $file_path_input $mapped_only $mapq_value $interval_chrs_length $interval_mapq_length $result_file
