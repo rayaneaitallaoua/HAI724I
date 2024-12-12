@@ -84,7 +84,7 @@ def read_sam(file_path: str):
                 reads_per_chromosome[chromosome] = {}
 
             reads_per_chromosome[chromosome][i] = reads_values
-            #|-----------------||----------||-|
+            # |-----------------||----------||-|
             #   1st dict          2nd dict  3rd dict stores the read_values
 
             # incrémenter i
@@ -342,9 +342,6 @@ def read_count_per_quality(reads_per_chromosome: dict):
 
     Args:
         reads_per_chromosome (dict): A dictionary of reads grouped by chromosomes.
-        save_plot (bool): Whether to save the bar plot for each chromosome.
-        save_result (bool): Whether to save the MAPQ table for each chromosome.
-        save_result_to (str): Path to save the results (plots and files).
     """
 
     def plot_read_counts_per_quality(chromosome: str, mapq_counts: dict):
