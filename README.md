@@ -5,21 +5,22 @@ This project provides a set of Python and BASH scripts for processing and visual
 ## Features
 
 - **Filter Reads**:
-  - Select reads based on:
-    -> Mapping quality (QMAP < 30 or another chosen value)
-    -> FLAG values (unmapped reads with FLAG = 4).
+  Select reads based on:
+  - Mapping quality (QMAP < 30 or another chosen value)
+  - FLAG values (unmapped reads with FLAG = 4).
   
 - **Interval-Based Analysis**:
-  - Divide chromosomes into intervals and count the number of reads within each interval.
+  - Divide chromosomes into defined intervals and counts the number of reads within each interval.
   
 - **Quality Analysis**:
-  - Analyze and visualize the distribution of reads across MAPQ quality values.
+  -  Counts reads per flag value
+  -  Generates the distribution of reads across MAPQ quality values to provide insights into the overall quality alignement
   
 - **Visualization**:
-  - Generate bar charts interval-based and quality-based read counts.
+  - Generates bar charts for interval-based and quality-based read counts (MAPQ).
 
 - **Export Results**:
-  - Saves results of read counts to a file for further analysis.
+  - Saves results into a file for further analysis.
 
 ## Requirements
 
@@ -30,6 +31,9 @@ Install required packages using:
 ```bash
 pip install matplotlib
 ```
+## File Structure
+- 'launch.sh': A shell script that interacts with the user, verifies input files, and executes the Python pipeline.
+- 'Main.py': The main Python script, containing various functions for data filtering, analysis, and visualization.
 
 ## Execution
 To launch the program :
@@ -40,3 +44,4 @@ chmod +x ./launch.sh
 ```bash
 ./launch.sh
 ```
+Example File Path required in bash script: /path/to/your/project/data/input_file.sam
