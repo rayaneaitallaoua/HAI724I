@@ -1,11 +1,13 @@
 # Genomic Data Processing and Visualization
 
-This project provides a set of Python and BASH scripts for processing and visualizing genomic data from SAM files. The code filters, analyzes, and visualizes read data based on various criteria such as read quality, FLAG values, and chromosomal intervals.
+This project provides a set of Python and BASH scripts for processing and visualizing genomic data from SAM files, commonly used in next-generation sequencing (NGS). The code filters, analyzes, and visualizes read data based on various genomic criteria such as read quality, FLAG values, and chromosomal intervals.
 
 ## Features
 
 - **Filter Reads**:
-  - Select reads based on quality (QMAP < 30 or another chosen value) and FLAG values (4).
+  - Select reads based on:
+    -> Mapping quality (QMAP < 30 or another chosen value)
+    -> FLAG values (unmapped reads with FLAG = 4).
   
 - **Interval-Based Analysis**:
   - Divide chromosomes into intervals and count the number of reads within each interval.
