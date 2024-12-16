@@ -20,7 +20,7 @@ This project provides a set of Python and BASH scripts for processing and visual
   - Generates bar charts for interval-based and quality-based read counts (MAPQ).
 
 - **Export Results**:
-  - Saves results into a file for further analysis.
+  - Saves results into 'result_file' for further analysis.
 
 ## Requirements
 
